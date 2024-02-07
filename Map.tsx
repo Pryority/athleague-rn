@@ -14,9 +14,56 @@ const MapScreen = () => {
     // Add more initial markers as needed
   ]);
 
+  const isMarkerWithinThreshold = (
+    newCoordinate: { latitude: number; longitude: number },
+    existingCoordinate: { latitude: number; longitude: number },
+    threshold: number
+  ) => {
+    const distance = calculateDistance(
+      newCoordinate.latitude,
+      newCoordinate.longitude,
+      existingCoordinate.latitude,
+      existingCoordinate.longitude
+    );
+
+    return distance > threshold;
+  };
+
+  const calculateDistance = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = deg2rad(lat2 - lat1); // deg2rad below
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) *
+        Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in km
+    return distance * 1000; // Convert distance to meters
+  };
+
+  const deg2rad = (deg: number) => {
+    return deg * (Math.PI / 180);
+  };
+
   const handleAddMarker = (newMarker: MapMarker) => {
-    console.log(markers);
-    setMarkers((prevMarkers) => [...prevMarkers, newMarker]);
+    // Check if the new marker is within 50 meters of any existing marker
+    const isWithinThreshold = markers.every((marker) =>
+      isMarkerWithinThreshold(newMarker.coordinate, marker.coordinate, 50)
+    );
+
+    if (isWithinThreshold) {
+      setMarkers((prevMarkers) => [...prevMarkers, newMarker]);
+    } else {
+      console.log("Marker too close to an existing one. Not adding.");
+    }
   };
 
   const handleUpdateMarker = (updatedMarker: MapMarker) => {
