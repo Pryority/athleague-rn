@@ -1,16 +1,26 @@
 import React, { useState } from "react";
 import MapView, { Marker } from "react-native-maps";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ViewStyle,
+} from "react-native";
 import { type MapMarker } from "./types";
+import { styled } from "nativewind";
+
+const StyledView = styled(View);
+const StyledText = styled(Text);
 
 const MapScreen = () => {
   const [markers, setMarkers] = useState([
-    {
-      id: 1,
-      coordinate: { latitude: 37.78825, longitude: -122.4324 },
-      title: "🚩 Checkpoint 1",
-      description: "",
-    },
+    // {
+    //   id: 1,
+    //   coordinate: { latitude: 37.78825, longitude: -122.4324 },
+    //   title: "🚩 Checkpoint 1",
+    //   description: "",
+    // },
     // Add more initial markers as needed
   ]);
 
@@ -85,7 +95,7 @@ const MapScreen = () => {
     const newMarker = {
       id: markers.length + 1,
       coordinate: newCoordinate,
-      title: `New Checkpoint ${markers.length + 1}`,
+      title: `Checkpoint ${markers.length + 1}`,
       description: "",
     };
 
@@ -107,8 +117,9 @@ const MapScreen = () => {
         handleMapPress(map);
       }}
     >
-      {markers.map((marker) => (
+      {markers.map((marker, index) => (
         <Marker
+          draggable
           key={marker.id}
           coordinate={marker.coordinate}
           title={marker.title}
@@ -118,22 +129,18 @@ const MapScreen = () => {
           }
           onPress={() => console.log(`Clicked Marker: ${marker.id}`)}
         >
-          <View
-            style={{
-              backgroundColor: "#F7F7F7",
-              padding: 10,
-              borderColor: "black",
-              borderWidth: 2,
-              borderRadius: 1000,
-              minWidth: 40,
-              minHeight: 40,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+          <StyledView
+            className={`${
+              index === 0
+                ? "bg-lime-500"
+                : index === markers.length - 1
+                ? "bg-yellow-500"
+                : "bg-cyan-100"
+            } p-4 rounded-full border-2 border-black relative justify-center items-center`}
           >
             {/* <Text>{marker.title}</Text> */}
-            <Text>{marker.id}</Text>
-          </View>
+            <StyledText className="absolute">{marker.id}</StyledText>
+          </StyledView>
         </Marker>
       ))}
     </MapView>
