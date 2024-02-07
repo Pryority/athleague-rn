@@ -6,23 +6,29 @@ import {
   TouchableOpacity,
   StyleSheet,
   ViewStyle,
+  Button,
+  Pressable,
 } from "react-native";
 import { type MapMarker } from "./types";
 import { styled } from "nativewind";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
+const StyledPressable = styled(Pressable);
 
 const MapScreen = () => {
-  const [markers, setMarkers] = useState([
-    // {
-    //   id: 1,
-    //   coordinate: { latitude: 37.78825, longitude: -122.4324 },
-    //   title: "🚩 Checkpoint 1",
-    //   description: "",
-    // },
-    // Add more initial markers as needed
-  ]);
+  const [markers, setMarkers] = useState<MapMarker[]>([]);
+  const [showIntro, setShowIntro] = useState(true);
+
+  // const [markers, setMarkers] = useState([
+  // {
+  //   id: 1,
+  //   coordinate: { latitude: 37.78825, longitude: -122.4324 },
+  //   title: "🚩 Checkpoint 1",
+  //   description: "",
+  // },
+  // Add more initial markers as needed
+  // ]);
 
   const isMarkerWithinThreshold = (
     newCoordinate: { latitude: number; longitude: number },
@@ -102,48 +108,76 @@ const MapScreen = () => {
     handleAddMarker(newMarker);
   };
 
+  const handleStartPress = () => {
+    setShowIntro(false);
+  };
+
   return (
-    <MapView
-      style={styles.map}
-      initialRegion={{
-        latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      }}
-      onPress={(map) => {
-        const { latitude, longitude } = map.nativeEvent.coordinate;
-        console.log(`==> MAP PRESS - lat: ${latitude}, lng: ${longitude}`);
-        handleMapPress(map);
-      }}
-    >
-      {markers.map((marker, index) => (
-        <Marker
-          draggable
-          key={marker.id}
-          coordinate={marker.coordinate}
-          title={marker.title}
-          description={marker.description}
-          onCalloutPress={() =>
-            console.log(`Marker ${marker.id} callout pressed`)
-          }
-          onPress={() => console.log(`Clicked Marker: ${marker.id}`)}
-        >
-          <StyledView
-            className={`${
-              index === 0
-                ? "bg-lime-500"
-                : index === markers.length - 1
-                ? "bg-yellow-500"
-                : "bg-cyan-100"
-            } p-4 rounded-full border-2 border-black relative justify-center items-center`}
-          >
-            {/* <Text>{marker.title}</Text> */}
-            <StyledText className="absolute">{marker.id}</StyledText>
+    <>
+      {showIntro ? (
+        <StyledView className="flex relative w-full justify-center items-center h-full">
+          <StyledView className="flex flex-col bg-white/80 w-full justify-center items-center h-full space-y-4 p-4">
+            <StyledText className="text-6xl text-center tracking-tighter">
+              Welcome to{" "}
+              <StyledText className="font-bold uppercase tracking-[-4px]">
+                Athleague
+              </StyledText>
+            </StyledText>
+            <StyledView className="flex flex-col items-center">
+              <StyledPressable
+                onPress={handleStartPress}
+                className="bg-lime-500 px-6 py-2 rounded-lg flex justify-center relative items-center w-1/2"
+              >
+                <StyledText className="font-medium text-2xl tracking-wide uppercase">
+                  Start
+                </StyledText>
+              </StyledPressable>
+            </StyledView>
           </StyledView>
-        </Marker>
-      ))}
-    </MapView>
+        </StyledView>
+      ) : (
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: 37.78825,
+            longitude: -122.4324,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+          onPress={(map) => {
+            const { latitude, longitude } = map.nativeEvent.coordinate;
+            console.log(`==> MAP PRESS - lat: ${latitude}, lng: ${longitude}`);
+            handleMapPress(map);
+          }}
+        >
+          {markers.map((marker, index) => (
+            <Marker
+              draggable
+              key={marker.id}
+              coordinate={marker.coordinate}
+              title={marker.title}
+              description={marker.description}
+              onCalloutPress={() =>
+                console.log(`Marker ${marker.id} callout pressed`)
+              }
+              onPress={() => console.log(`Clicked Marker: ${marker.id}`)}
+            >
+              <StyledView
+                className={`${
+                  index === 0
+                    ? "bg-lime-500"
+                    : index === markers.length - 1
+                    ? "bg-yellow-500"
+                    : "bg-cyan-100"
+                } p-4 rounded-full border-2 border-black relative justify-center items-center`}
+              >
+                <StyledText className="absolute">{marker.id}</StyledText>
+              </StyledView>
+            </Marker>
+          ))}
+        </MapView>
+      )}
+    </>
   );
 };
 
