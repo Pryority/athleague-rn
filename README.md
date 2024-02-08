@@ -21,8 +21,9 @@ Track your progress and improve your fitness by completing challenges with or wi
 
 ## Demo
 
-<p align="center" >
-  <img src="./assets/Athleague-React-Native-Demo-2.gif" style="height:600px;" alt="Sublime's custom image"/>
+<p align="center">
+  <img src="./assets/Athleague-React-Native-Demo-2.gif" style="height:600px;" alt="Course Creation Demo Gif"/>
+  <img src="./assets/Explore-Page-Demo.png" style="height:600px;" alt="Course Exploration Demo Image"/>
 </p>
 
 ## FAQ
