@@ -20,17 +20,29 @@ function App() {
   const [showIntro, setShowIntro] = useState(true); // Set to true initially
   const [showTutorial, setShowTutorial] = useState(false); // Set to true initially
   const [currentStep, setCurrentStep] = useState(1);
+  const [currentExploreTutStep, setCurrentExploreTutStep] = useState(0);
   const [canAddMarkers, setCanAddMarkers] = useState(true);
   const [showCourseCreation, setShowCourseCreation] = useState(false);
   const [showExplore, setShowExplore] = useState(false);
 
-  const tutorialSteps = [
+  const ccTutorialSteps = [
     {
       text: "Welcome to Athleague. Tap the 'Start' button to begin.",
       buttonText: "Start",
     },
     {
       text: "Tap the map to place a checkpoint.",
+      buttonText: "Next",
+    },
+  ];
+
+  const exploreTutorialSteps = [
+    {
+      text: "Welcome to Course Exploration!",
+      buttonText: "Start",
+    },
+    {
+      text: "Search the map for courses near you.",
       buttonText: "Next",
     },
   ];
@@ -71,10 +83,49 @@ function App() {
     console.log("Save pressed");
   };
 
+  const handleExploreTutNext = () => {
+    setCurrentExploreTutStep(currentExploreTutStep + 1);
+  };
+
   return (
     <>
       {showExplore ? (
-        <ExploreMap />
+        <StyledView className="bg-transparent flex w-full h-full items-center relative">
+          <ExploreMap />
+          {currentExploreTutStep <= exploreTutorialSteps.length - 1 ? (
+            <StyledView
+              className="bg-stone-900/90 p-4 pb-16"
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                // paddingHorizontal: 16,
+                // paddingBottom: 64,
+                zIndex: 1,
+              }}
+            >
+              <StyledView
+                id="tutorial-hud"
+                className="bg-slate-900/90 z-50 flex absolute bottom-6 p-6 rounded-md"
+              >
+                <StyledText className="text-white">
+                  {exploreTutorialSteps[currentExploreTutStep].text}
+                </StyledText>
+                <StyledPressable
+                  onPress={handleExploreTutNext}
+                  className="bg-lime-500 px-6 py-2 rounded-lg flex justify-center relative items-center mt-4"
+                >
+                  <StyledText className="font-medium text-2xl tracking-wide uppercase">
+                    {exploreTutorialSteps[currentExploreTutStep].buttonText}
+                  </StyledText>
+                </StyledPressable>
+              </StyledView>
+            </StyledView>
+          ) : (
+            <></>
+          )}
+        </StyledView>
       ) : (
         <>
           {showCourseCreation ? (
@@ -92,14 +143,14 @@ function App() {
                     className="bg-slate-900/90 z-50 flex absolute bottom-6 p-6 rounded-md"
                   >
                     <StyledText className="text-white">
-                      {tutorialSteps[currentStep].text}
+                      {ccTutorialSteps[currentStep].text}
                     </StyledText>
                     <StyledPressable
                       // onPress={handleStartPress}
                       className="bg-lime-500 px-6 py-2 rounded-lg flex justify-center relative items-center mt-4"
                     >
                       <StyledText className="font-medium text-2xl tracking-wide uppercase">
-                        {tutorialSteps[currentStep].buttonText}
+                        {ccTutorialSteps[currentStep].buttonText}
                       </StyledText>
                     </StyledPressable>
                   </StyledView>

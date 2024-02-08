@@ -5,6 +5,7 @@ import { Course, Mode } from "./types";
 import {
   StyledMapView,
   StyledMarker,
+  StyledPressable,
   StyledText,
   StyledView,
 } from "./utils/nw";
@@ -47,7 +48,27 @@ const ExploreMap = () => {
         longitude: -122.48825805558485,
       },
     },
+    {
+      id: 2,
+      mode: Mode.Point,
+      title: `Course 3`,
+      description: "Be prepared for hilly terrain.",
+      checkpoints: [
+        {
+          id: 0,
+          coordinate: { latitude: 0, longitude: 0 },
+          title: "",
+          description: "",
+        },
+      ],
+      coordinate: {
+        latitude: 37.847692936761796,
+        longitude: -122.519614584220635,
+      },
+    },
   ]);
+  const [currentStep, setCurrentStep] = useState(1);
+
   const mapRef = useRef<any>();
   const [currentCourseIndex, setCurrentCourseIndex] = useState<null | number>(
     null
@@ -97,18 +118,26 @@ const ExploreMap = () => {
         >
           <StyledView
             className={`${
-              course.mode === Mode.Sprint
-                ? Mode.Race
-                  ? ""
-                  : "bg-pink-500/90 border-pink-900/90"
-                : "bg-orange-500/90 border-orange-900/90"
+              course.mode === Mode.Race
+                ? "bg-orange-500/90 border-orange-900/90"
+                : course.mode === Mode.Sprint
+                ? "bg-pink-500/90 border-pink-900/90"
+                : course.mode === Mode.Point
+                ? "bg-purple-500/90 border-purple-900/90"
+                : ""
             } p-4 rounded-full border-2 relative justify-center items-center`}
           >
             <StyledText
               className="absolute"
               style={{ color: "white", fontWeight: "bold" }}
             >
-              {course.mode === Mode.Sprint ? (Mode.Race ? "" : "S") : "R"}
+              {course.mode === Mode.Race
+                ? "R"
+                : course.mode === Mode.Sprint
+                ? "S"
+                : course.mode === Mode.Point
+                ? "P"
+                : "None"}
             </StyledText>
           </StyledView>
         </StyledMarker>
