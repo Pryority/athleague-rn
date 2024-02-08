@@ -1,19 +1,8 @@
 import React, { Dispatch, useRef, useState } from "react";
-import MapView, { MapOverlay, Marker, Overlay } from "react-native-maps";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ViewStyle,
-  Button,
-  Pressable,
-  Dimensions,
-} from "react-native";
+import { MapOverlay } from "react-native-maps";
+
 import { type MapMarker } from "./types";
-import { styled } from "nativewind";
 import {
-  StyledButton,
   StyledMapView,
   StyledMarker,
   StyledPressable,
@@ -30,6 +19,7 @@ const MapScreen = ({
   markers: MapMarker[];
   setMarkers: Dispatch<React.SetStateAction<MapMarker[]>>;
 }) => {
+  const mapRef = useRef<any>();
   const [canAddMarkers, setCanAddMarkers] = useState(true);
   const [currentCpIndex, setCurrentCpIndex] = useState(0);
   const [deletedCheckpoints, setDeletedCheckpoints] = useState<string[]>([]);
@@ -93,6 +83,7 @@ const MapScreen = ({
 
   const handleMarkerClick = (marker: MapMarker) => {
     console.log(`Clicked Marker: ${marker.id}`);
+    mapRef.current?.animateToRegion(marker.coordinate);
   };
 
   const handleUndoPress = () => {
@@ -121,6 +112,7 @@ const MapScreen = ({
     <>
       <StyledMapView
         // style={styles.map}
+        ref={mapRef}
         className="flex  w-full h-full"
         initialRegion={{
           latitude: 37.78825,
