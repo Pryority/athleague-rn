@@ -22,7 +22,7 @@ Track your progress and improve your fitness by completing challenges with or wi
 ## Demo
 
 <p align="center" >
-  <img src="./assets/athleague-rn-demo-1.gif" style="height:600px;" alt="Sublime's custom image"/>
+  <img src="./assets/Athleague-React-Native-Demo-2.gif" style="height:600px;" alt="Sublime's custom image"/>
 </p>
 
 ## FAQ
