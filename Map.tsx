@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Dispatch, useState } from "react";
 import MapView, { Marker } from "react-native-maps";
 import {
   View,
@@ -11,25 +11,15 @@ import {
 } from "react-native";
 import { type MapMarker } from "./types";
 import { styled } from "nativewind";
+import { StyledPressable, StyledText, StyledView } from "./utils/nw";
 
-const StyledView = styled(View);
-const StyledText = styled(Text);
-const StyledPressable = styled(Pressable);
-
-const MapScreen = () => {
-  const [markers, setMarkers] = useState<MapMarker[]>([]);
-  const [showIntro, setShowIntro] = useState(true);
-
-  // const [markers, setMarkers] = useState([
-  // {
-  //   id: 1,
-  //   coordinate: { latitude: 37.78825, longitude: -122.4324 },
-  //   title: "🚩 Checkpoint 1",
-  //   description: "",
-  // },
-  // Add more initial markers as needed
-  // ]);
-
+const MapScreen = ({
+  markers,
+  setMarkers,
+}: {
+  markers: MapMarker[];
+  setMarkers: Dispatch<React.SetStateAction<MapMarker[]>>;
+}) => {
   const isMarkerWithinThreshold = (
     newCoordinate: { latitude: number; longitude: number },
     existingCoordinate: { latitude: number; longitude: number },
@@ -71,27 +61,27 @@ const MapScreen = () => {
 
   const handleAddMarker = (newMarker: MapMarker) => {
     // Check if the new marker is within 50 meters of any existing marker
-    const isWithinThreshold = markers.every((marker) =>
+    const isWithinThreshold = markers.every((marker: MapMarker) =>
       isMarkerWithinThreshold(newMarker.coordinate, marker.coordinate, 50)
     );
 
     if (isWithinThreshold) {
-      setMarkers((prevMarkers) => [...prevMarkers, newMarker]);
+      setMarkers((prevMarkers: MapMarker[]) => [...prevMarkers, newMarker]);
     } else {
       console.log("Marker too close to an existing one. Not adding.");
     }
   };
 
   const handleUpdateMarker = (updatedMarker: MapMarker) => {
-    setMarkers((prevMarkers) =>
-      prevMarkers.map((marker) =>
+    setMarkers((prevMarkers: MapMarker[]) =>
+      prevMarkers.map((marker: MapMarker) =>
         marker.id === updatedMarker.id ? updatedMarker : marker
       )
     );
   };
 
   const handleDeleteMarker = (markerId: number) => {
-    setMarkers((prevMarkers) =>
+    setMarkers((prevMarkers: MapMarker[]) =>
       prevMarkers.filter((marker) => marker.id !== markerId)
     );
   };
@@ -108,76 +98,47 @@ const MapScreen = () => {
     handleAddMarker(newMarker);
   };
 
-  const handleStartPress = () => {
-    setShowIntro(false);
-  };
-
   return (
-    <>
-      {showIntro ? (
-        <StyledView className="flex relative w-full justify-center items-center h-full">
-          <StyledView className="flex flex-col bg-white/80 w-full justify-center items-center h-full space-y-4 p-4">
-            <StyledText className="text-6xl text-center tracking-tighter">
-              Welcome to{" "}
-              <StyledText className="font-bold uppercase tracking-[-4px]">
-                Athleague
-              </StyledText>
-            </StyledText>
-            <StyledView className="flex flex-col items-center">
-              <StyledPressable
-                onPress={handleStartPress}
-                className="bg-lime-500 px-6 py-2 rounded-lg flex justify-center relative items-center w-1/2"
-              >
-                <StyledText className="font-medium text-2xl tracking-wide uppercase">
-                  Start
-                </StyledText>
-              </StyledPressable>
-            </StyledView>
-          </StyledView>
-        </StyledView>
-      ) : (
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: 37.78825,
-            longitude: -122.4324,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-          onPress={(map) => {
-            const { latitude, longitude } = map.nativeEvent.coordinate;
-            console.log(`==> MAP PRESS - lat: ${latitude}, lng: ${longitude}`);
-            handleMapPress(map);
-          }}
+    <MapView
+      style={styles.map}
+      initialRegion={{
+        latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }}
+      onPress={(map) => {
+        const { latitude, longitude } = map.nativeEvent.coordinate;
+        console.log(`==> MAP PRESS - lat: ${latitude}, lng: ${longitude}`);
+        handleMapPress(map);
+      }}
+    >
+      {markers.map((marker: MapMarker, index: number) => (
+        <Marker
+          draggable
+          key={marker.id}
+          coordinate={marker.coordinate}
+          title={marker.title}
+          description={marker.description}
+          onCalloutPress={() =>
+            console.log(`Marker ${marker.id} callout pressed`)
+          }
+          onPress={() => console.log(`Clicked Marker: ${marker.id}`)}
         >
-          {markers.map((marker, index) => (
-            <Marker
-              draggable
-              key={marker.id}
-              coordinate={marker.coordinate}
-              title={marker.title}
-              description={marker.description}
-              onCalloutPress={() =>
-                console.log(`Marker ${marker.id} callout pressed`)
-              }
-              onPress={() => console.log(`Clicked Marker: ${marker.id}`)}
-            >
-              <StyledView
-                className={`${
-                  index === 0
-                    ? "bg-lime-500"
-                    : index === markers.length - 1
-                    ? "bg-yellow-500"
-                    : "bg-cyan-100"
-                } p-4 rounded-full border-2 border-black relative justify-center items-center`}
-              >
-                <StyledText className="absolute">{marker.id}</StyledText>
-              </StyledView>
-            </Marker>
-          ))}
-        </MapView>
-      )}
-    </>
+          <StyledView
+            className={`${
+              index === 0
+                ? "bg-lime-500"
+                : index === markers.length - 1
+                ? "bg-yellow-500"
+                : "bg-cyan-100"
+            } p-4 rounded-full border-2 border-black relative justify-center items-center`}
+          >
+            <StyledText className="absolute">{marker.id}</StyledText>
+          </StyledView>
+        </Marker>
+      ))}
+    </MapView>
   );
 };
 
