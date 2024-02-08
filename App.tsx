@@ -19,6 +19,7 @@ function App() {
   const [showIntro, setShowIntro] = useState(false); // Set to true initially
   const [showTutorial, setShowTutorial] = useState(false); // Set to true initially
   const [currentStep, setCurrentStep] = useState(1);
+  const [canAddMarkers, setCanAddMarkers] = useState(true);
 
   const tutorialSteps = [
     {
@@ -33,6 +34,32 @@ function App() {
 
   const handleStartPress = () => {
     setShowIntro(false);
+  };
+
+  const handleUndoPress = () => {
+    setCanAddMarkers(false);
+
+    if (markers.length === 0) return;
+    const newMarkers = markers.slice(0, -1).map((marker, index) => ({
+      ...marker,
+      id: index + 1,
+    }));
+    setMarkers(newMarkers);
+    console.log("UNDO");
+    const timer = setTimeout(() => {
+      setCanAddMarkers(true);
+      console.log("ADD MARKER TIMER DONE");
+    }, 500);
+    return () => clearTimeout(timer);
+  };
+
+  const handleSavePress = () => {
+    if (markers.length < 2) {
+      console.log("Must add at least two checkpoints to create a course.");
+    } else if (markers.length >= 2) {
+      console.log("Saving course...");
+    }
+    console.log("Save pressed");
   };
 
   return (
@@ -60,8 +87,14 @@ function App() {
         </StyledView>
       ) : (
         <StyledView className="bg-transparent flex w-full h-full items-center relative">
+          <MapScreen
+            markers={markers}
+            setMarkers={setMarkers}
+            setCanAddMarkers={setCanAddMarkers}
+          />
+
           {showTutorial && currentStep > 0 && (
-            <StyledView className="bg-transparent flex w-full h-full items-center">
+            <StyledView className="bg-transparent flex w-full h-full absolute">
               <StyledView
                 id="tutorial-hud"
                 className="bg-slate-900/90 z-50 flex absolute bottom-6 p-6 rounded-md"
@@ -78,11 +111,44 @@ function App() {
                   </StyledText>
                 </StyledPressable>
               </StyledView>
-              <StatusBar style="auto" />
             </StyledView>
           )}
 
-          <MapScreen markers={markers} setMarkers={setMarkers} />
+          <StyledSafeAreaView
+            style={{
+              position: "absolute",
+              bottom: 44,
+              left: 0,
+              right: 0,
+              paddingHorizontal: 16,
+              paddingBottom: 16,
+              zIndex: 1, // Set a higher zIndex to ensure it appears on top of the map
+            }}
+          >
+            <StyledView className="flex flex-row items-end w-full justify-around">
+              <StyledPressable
+                className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
+                onPress={handleUndoPress}
+              >
+                <StyledText className="text-stone-50 font-semibold text-lg">
+                  Undo
+                </StyledText>
+              </StyledPressable>
+
+              <StyledPressable
+                className={`${
+                  markers.length > 1
+                    ? "bg-lime-600/90 border-lime-900/90"
+                    : "bg-gray-600/90 border-gray-900/90 cursor-disabled"
+                } px-3 py-1 rounded-lg  border-2 shadow-2xl`}
+                onPress={handleSavePress}
+              >
+                <StyledText className="text-stone-50 font-semibold text-lg">
+                  Save
+                </StyledText>
+              </StyledPressable>
+            </StyledView>
+          </StyledSafeAreaView>
         </StyledView>
       )}
       <StatusBar style="auto" />

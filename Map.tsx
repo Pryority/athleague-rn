@@ -11,6 +11,7 @@ import {
   StyledView,
 } from "./utils/nw";
 import { calculateDistance } from "./utils/addCpCheck";
+import { SafeAreaView } from "react-native";
 
 const MapScreen = ({
   markers,
@@ -18,6 +19,7 @@ const MapScreen = ({
 }: {
   markers: MapMarker[];
   setMarkers: Dispatch<React.SetStateAction<MapMarker[]>>;
+  setCanAddMarkers: Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const mapRef = useRef<any>();
   const [canAddMarkers, setCanAddMarkers] = useState(true);
@@ -86,93 +88,48 @@ const MapScreen = ({
     mapRef.current?.animateToRegion(marker.coordinate);
   };
 
-  const handleUndoPress = () => {
-    setCanAddMarkers(false);
-
-    if (markers.length === 0) return;
-    const newMarkers = markers.slice(0, -1).map((marker, index) => ({
-      ...marker,
-      id: index + 1,
-    }));
-    setMarkers(newMarkers);
-    console.log("UNDO");
-    const timer = setTimeout(() => {
-      setCanAddMarkers(true);
-      console.log("ADD MARKER TIMER DONE");
-    }, 500);
-    return () => clearTimeout(timer);
-  };
-
-  const handleSavePress = () => {
-    // Implement save functionality here
-    console.log("Save pressed");
-  };
-
   return (
-    <>
-      <StyledMapView
-        // style={styles.map}
-        ref={mapRef}
-        className="flex  w-full h-full"
-        initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-        onPress={(map) => {
-          handleMapPress(map);
-        }}
-      >
-        {markers.map((marker: MapMarker, index: number) => (
-          <StyledMarker
-            className="absolute"
-            draggable
-            key={marker.id}
-            coordinate={marker.coordinate}
-            title={marker.title}
-            description={marker.description}
-            onCalloutPress={() =>
-              console.log(`Marker ${marker.id} callout pressed`)
-            }
-            onPress={() => handleMarkerClick(marker)}
+    <StyledMapView
+      // style={styles.map}
+      ref={mapRef}
+      className="flex w-full h-full fixed pointer-events-none"
+      initialRegion={{
+        latitude: 37.83,
+        longitude: -122.51777381728886,
+        latitudeDelta: 0.02,
+        longitudeDelta: 0.02,
+      }}
+      onPress={(map) => {
+        handleMapPress(map);
+      }}
+    >
+      {markers.map((marker: MapMarker, index: number) => (
+        <StyledMarker
+          className="absolute"
+          draggable
+          key={marker.id}
+          coordinate={marker.coordinate}
+          title={marker.title}
+          description={marker.description}
+          onCalloutPress={() =>
+            console.log(`Marker ${marker.id} callout pressed`)
+          }
+          onPress={() => handleMarkerClick(marker)}
+        >
+          <StyledView
+            className={`${
+              index === 0
+                ? "bg-lime-500"
+                : index === markers.length - 1
+                ? "bg-yellow-500"
+                : "bg-cyan-100"
+            } p-4 rounded-full border-2 border-black relative justify-center items-center`}
           >
-            <StyledView
-              className={`${
-                index === 0
-                  ? "bg-lime-500"
-                  : index === markers.length - 1
-                  ? "bg-yellow-500"
-                  : "bg-cyan-100"
-              } p-4 rounded-full border-2 border-black relative justify-center items-center`}
-            >
-              <StyledText className="absolute">{marker.id}</StyledText>
-            </StyledView>
-          </StyledMarker>
-        ))}
-        <StyledSafeAreaView className="p-4 flex flex-row absolute">
-          <StyledView className="flex flex-row items-center w-full justify-around z-50">
-            <StyledPressable
-              className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex relative items-center justify-center"
-              onPress={handleUndoPress}
-            >
-              <StyledText className="text-stone-50 font-semibold text-lg">
-                Undo
-              </StyledText>
-            </StyledPressable>
-
-            <StyledPressable
-              className="bg-lime-600/90 px-3 py-1 rounded-lg border-lime-900/90 border-2 shadow-2xl"
-              // onPress={handleSavePress}
-            >
-              <StyledText className="text-stone-50 font-semibold text-lg">
-                Save
-              </StyledText>
-            </StyledPressable>
+            <StyledText className="absolute">{marker.id}</StyledText>
           </StyledView>
-        </StyledSafeAreaView>
-      </StyledMapView>
-    </>
+        </StyledMarker>
+      ))}
+    </StyledMapView>
   );
 };
 
