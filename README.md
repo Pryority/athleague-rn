@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD033 -->
 # Athleague
 
 A outdoor adventure game made to encourage local exploration and improve personal fitness.
