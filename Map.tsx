@@ -54,7 +54,9 @@ const MapScreen = ({
       id: markers.length + 1,
       coordinate: newCoordinate,
       title: `Checkpoint: ${markers.length + 1}`,
-      description: `Lat: ${newCoordinate.latitude} | Lng: ${newCoordinate.longitude}`,
+      description: `Lat: ${newCoordinate.latitude.toFixed(
+        4
+      )} | Lng: ${newCoordinate.longitude.toFixed(4)}`,
     };
     const { latitude, longitude } = event.nativeEvent.coordinate;
     console.log(`==> MAP PRESS - lat: ${latitude}, lng: ${longitude}`);
@@ -94,7 +96,9 @@ const MapScreen = ({
         marker.id === Number(id)
           ? {
               ...marker,
-              description: `Lat: ${coordinate.latitude} | Lng: ${coordinate.longitude}`,
+              description: `Lat: ${coordinate.latitude.toFixed(
+                4
+              )} | Lng: ${coordinate.longitude.toFixed(4)}`,
               coordinate,
             }
           : marker
@@ -117,7 +121,9 @@ const MapScreen = ({
         marker.id === draggedMarker.id
           ? {
               ...marker,
-              description: `Lat: ${coordinate.latitude} | Lng: ${coordinate.longitude}`,
+              description: `Lat: ${coordinate.latitude.toFixed(
+                4
+              )} | Lng: ${coordinate.longitude.toFixed(4)}`,
               coordinate,
             }
           : marker
