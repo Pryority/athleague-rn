@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import MapView, { LatLng, Marker, Overlay } from "react-native-maps";
-import MapScreen from "./Map";
+import CourseCreationMap from "./CourseCreationMap";
 import { withExpoSnack } from "nativewind";
 import { Text, Button, SafeAreaView } from "react-native";
 import {
@@ -13,13 +13,16 @@ import {
   StyledSafeAreaView,
 } from "./utils/nw";
 import { MapMarker } from "./types";
+import ExploreMap from "./ExploreMap";
 
 function App() {
   const [markers, setMarkers] = useState<MapMarker[]>([]); // Specify the type
-  const [showIntro, setShowIntro] = useState(false); // Set to true initially
+  const [showIntro, setShowIntro] = useState(true); // Set to true initially
   const [showTutorial, setShowTutorial] = useState(false); // Set to true initially
   const [currentStep, setCurrentStep] = useState(1);
   const [canAddMarkers, setCanAddMarkers] = useState(true);
+  const [showCourseCreation, setShowCourseCreation] = useState(false);
+  const [showExplore, setShowExplore] = useState(false);
 
   const tutorialSteps = [
     {
@@ -32,8 +35,14 @@ function App() {
     },
   ];
 
-  const handleStartPress = () => {
+  const handleCreatePress = () => {
     setShowIntro(false);
+    setShowCourseCreation(true);
+  };
+
+  const handleExplorePress = () => {
+    setShowIntro(false);
+    setShowExplore(true);
   };
 
   const handleUndoPress = () => {
@@ -64,92 +73,106 @@ function App() {
 
   return (
     <>
-      {showIntro ? (
-        <StyledView className="flex relative w-full justify-center items-center h-full">
-          <StyledView className="flex flex-col bg-white/80 w-full justify-center items-center h-full space-y-4 p-4">
-            <StyledText className="text-6xl text-center tracking-tighter">
-              Welcome to{" "}
-              <StyledText className="font-bold uppercase tracking-[-4px]">
-                Athleague
-              </StyledText>
-            </StyledText>
-            <StyledView className="flex flex-col items-center">
-              <StyledPressable
-                onPress={handleStartPress}
-                className="bg-lime-500 px-6 py-2 rounded-lg flex justify-center relative items-center w-1/2"
-              >
-                <StyledText className="font-medium text-2xl tracking-wide uppercase">
-                  Start
-                </StyledText>
-              </StyledPressable>
-            </StyledView>
-          </StyledView>
-        </StyledView>
+      {showExplore ? (
+        <ExploreMap />
       ) : (
-        <StyledView className="bg-transparent flex w-full h-full items-center relative">
-          <MapScreen
-            markers={markers}
-            setMarkers={setMarkers}
-            setCanAddMarkers={setCanAddMarkers}
-          />
+        <>
+          {showCourseCreation ? (
+            <StyledView className="bg-transparent flex w-full h-full items-center relative">
+              <CourseCreationMap
+                markers={markers}
+                setMarkers={setMarkers}
+                setCanAddMarkers={setCanAddMarkers}
+              />
 
-          {showTutorial && currentStep > 0 && (
-            <StyledView className="bg-transparent flex w-full h-full absolute">
-              <StyledView
-                id="tutorial-hud"
-                className="bg-slate-900/90 z-50 flex absolute bottom-6 p-6 rounded-md"
+              {/* {showTutorial && currentStep > 0 && (
+                <StyledView className="bg-transparent flex w-full h-full absolute">
+                  <StyledView
+                    id="tutorial-hud"
+                    className="bg-slate-900/90 z-50 flex absolute bottom-6 p-6 rounded-md"
+                  >
+                    <StyledText className="text-white">
+                      {tutorialSteps[currentStep].text}
+                    </StyledText>
+                    <StyledPressable
+                      // onPress={handleStartPress}
+                      className="bg-lime-500 px-6 py-2 rounded-lg flex justify-center relative items-center mt-4"
+                    >
+                      <StyledText className="font-medium text-2xl tracking-wide uppercase">
+                        {tutorialSteps[currentStep].buttonText}
+                      </StyledText>
+                    </StyledPressable>
+                  </StyledView>
+                </StyledView>
+              )} */}
+
+              <StyledSafeAreaView
+                style={{
+                  position: "absolute",
+                  bottom: 44,
+                  left: 0,
+                  right: 0,
+                  paddingHorizontal: 16,
+                  paddingBottom: 16,
+                  zIndex: 1,
+                }}
               >
-                <StyledText className="text-white">
-                  {tutorialSteps[currentStep].text}
-                </StyledText>
-                <StyledPressable
-                  onPress={handleStartPress}
-                  className="bg-lime-500 px-6 py-2 rounded-lg flex justify-center relative items-center mt-4"
-                >
-                  <StyledText className="font-medium text-2xl tracking-wide uppercase">
-                    {tutorialSteps[currentStep].buttonText}
+                <StyledView className="flex flex-row items-end w-full justify-around">
+                  <StyledPressable
+                    className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
+                    onPress={handleUndoPress}
+                  >
+                    <StyledText className="text-stone-50 font-semibold text-lg">
+                      Undo
+                    </StyledText>
+                  </StyledPressable>
+
+                  <StyledPressable
+                    className={`${
+                      markers.length > 1
+                        ? "bg-lime-600/90 border-lime-900/90"
+                        : "bg-gray-600/90 border-gray-900/90 cursor-disabled"
+                    } px-3 py-1 rounded-lg  border-2 shadow-2xl`}
+                    onPress={handleSavePress}
+                  >
+                    <StyledText className="text-stone-50 font-semibold text-lg">
+                      Save
+                    </StyledText>
+                  </StyledPressable>
+                </StyledView>
+              </StyledSafeAreaView>
+            </StyledView>
+          ) : (
+            <StyledView className="flex relative w-full justify-center items-center h-full">
+              <StyledView className="flex flex-col bg-white/80 w-full justify-center items-center h-full space-y-4 p-4">
+                <StyledText className="text-6xl text-center tracking-tighter">
+                  Welcome to{" "}
+                  <StyledText className="font-bold uppercase tracking-[-4px]">
+                    Athleague
                   </StyledText>
-                </StyledPressable>
+                </StyledText>
+                <StyledView className="flex flex-col items-center w-1/2 space-y-3">
+                  <StyledPressable
+                    onPress={handleCreatePress}
+                    className="bg-lime-400 px-6 py-2 rounded-lg flex justify-center relative items-center w-full"
+                  >
+                    <StyledText className="font-medium text-2xl tracking-wide uppercase">
+                      Create
+                    </StyledText>
+                  </StyledPressable>
+                  <StyledPressable
+                    onPress={handleExplorePress}
+                    className="bg-sky-300 w-full px-6 py-2 rounded-lg flex justify-center relative items-center"
+                  >
+                    <StyledText className="font-medium text-2xl tracking-wide uppercase">
+                      Explore
+                    </StyledText>
+                  </StyledPressable>
+                </StyledView>
               </StyledView>
             </StyledView>
           )}
-
-          <StyledSafeAreaView
-            style={{
-              position: "absolute",
-              bottom: 44,
-              left: 0,
-              right: 0,
-              paddingHorizontal: 16,
-              paddingBottom: 16,
-              zIndex: 1, // Set a higher zIndex to ensure it appears on top of the map
-            }}
-          >
-            <StyledView className="flex flex-row items-end w-full justify-around">
-              <StyledPressable
-                className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
-                onPress={handleUndoPress}
-              >
-                <StyledText className="text-stone-50 font-semibold text-lg">
-                  Undo
-                </StyledText>
-              </StyledPressable>
-
-              <StyledPressable
-                className={`${
-                  markers.length > 1
-                    ? "bg-lime-600/90 border-lime-900/90"
-                    : "bg-gray-600/90 border-gray-900/90 cursor-disabled"
-                } px-3 py-1 rounded-lg  border-2 shadow-2xl`}
-                onPress={handleSavePress}
-              >
-                <StyledText className="text-stone-50 font-semibold text-lg">
-                  Save
-                </StyledText>
-              </StyledPressable>
-            </StyledView>
-          </StyledSafeAreaView>
-        </StyledView>
+        </>
       )}
       <StatusBar style="auto" />
     </>

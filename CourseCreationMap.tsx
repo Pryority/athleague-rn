@@ -18,7 +18,7 @@ import {
 import { calculateDistance } from "./utils/addCpCheck";
 import { SafeAreaView } from "react-native";
 
-const MapScreen = ({
+const CourseCreationMap = ({
   markers,
   setMarkers,
 }: {
@@ -201,4 +201,4 @@ const MapScreen = ({
   );
 };
 
-export default MapScreen;
+export default CourseCreationMap;
