@@ -1,5 +1,5 @@
-import React, { Dispatch, useState } from "react";
-import MapView, { Marker } from "react-native-maps";
+import React, { Dispatch, useRef, useState } from "react";
+import MapView, { MapOverlay, Marker, Overlay } from "react-native-maps";
 import {
   View,
   Text,
@@ -8,10 +8,20 @@ import {
   ViewStyle,
   Button,
   Pressable,
+  Dimensions,
 } from "react-native";
 import { type MapMarker } from "./types";
 import { styled } from "nativewind";
-import { StyledPressable, StyledText, StyledView } from "./utils/nw";
+import {
+  StyledButton,
+  StyledMapView,
+  StyledMarker,
+  StyledPressable,
+  StyledSafeAreaView,
+  StyledText,
+  StyledView,
+} from "./utils/nw";
+import { calculateDistance } from "./utils/addCpCheck";
 
 const MapScreen = ({
   markers,
@@ -20,6 +30,11 @@ const MapScreen = ({
   markers: MapMarker[];
   setMarkers: Dispatch<React.SetStateAction<MapMarker[]>>;
 }) => {
+  const [canAddMarkers, setCanAddMarkers] = useState(true);
+  const [currentCpIndex, setCurrentCpIndex] = useState(0);
+  const [deletedCheckpoints, setDeletedCheckpoints] = useState<string[]>([]);
+  const dropAreaOverlay = useRef<MapOverlay>();
+
   const isMarkerWithinThreshold = (
     newCoordinate: { latitude: number; longitude: number },
     existingCoordinate: { latitude: number; longitude: number },
@@ -35,28 +50,18 @@ const MapScreen = ({
     return distance > threshold;
   };
 
-  const calculateDistance = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ) => {
-    const R = 6371; // Radius of the earth in km
-    const dLat = deg2rad(lat2 - lat1); // deg2rad below
-    const dLon = deg2rad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(deg2rad(lat1)) *
-        Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // Distance in km
-    return distance * 1000; // Convert distance to meters
-  };
-
-  const deg2rad = (deg: number) => {
-    return deg * (Math.PI / 180);
+  const handleMapPress = (event: any) => {
+    if (!canAddMarkers) return;
+    const newCoordinate = event.nativeEvent.coordinate;
+    const newMarker = {
+      id: markers.length + 1,
+      coordinate: newCoordinate,
+      title: `Checkpoint ${markers.length + 1}`,
+      description: "",
+    };
+    const { latitude, longitude } = event.nativeEvent.coordinate;
+    console.log(`==> MAP PRESS - lat: ${latitude}, lng: ${longitude}`);
+    handleAddMarker(newMarker);
   };
 
   const handleAddMarker = (newMarker: MapMarker) => {
@@ -86,66 +91,97 @@ const MapScreen = ({
     );
   };
 
-  const handleMapPress = (event: any) => {
-    const newCoordinate = event.nativeEvent.coordinate;
-    const newMarker = {
-      id: markers.length + 1,
-      coordinate: newCoordinate,
-      title: `Checkpoint ${markers.length + 1}`,
-      description: "",
-    };
+  const handleMarkerClick = (marker: MapMarker) => {
+    console.log(`Clicked Marker: ${marker.id}`);
+  };
 
-    handleAddMarker(newMarker);
+  const handleUndoPress = () => {
+    setCanAddMarkers(false);
+
+    if (markers.length === 0) return;
+    const newMarkers = markers.slice(0, -1).map((marker, index) => ({
+      ...marker,
+      id: index + 1,
+    }));
+    setMarkers(newMarkers);
+    console.log("UNDO");
+    const timer = setTimeout(() => {
+      setCanAddMarkers(true);
+      console.log("ADD MARKER TIMER DONE");
+    }, 500);
+    return () => clearTimeout(timer);
+  };
+
+  const handleSavePress = () => {
+    // Implement save functionality here
+    console.log("Save pressed");
   };
 
   return (
-    <MapView
-      style={styles.map}
-      initialRegion={{
-        latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      }}
-      onPress={(map) => {
-        const { latitude, longitude } = map.nativeEvent.coordinate;
-        console.log(`==> MAP PRESS - lat: ${latitude}, lng: ${longitude}`);
-        handleMapPress(map);
-      }}
-    >
-      {markers.map((marker: MapMarker, index: number) => (
-        <Marker
-          draggable
-          key={marker.id}
-          coordinate={marker.coordinate}
-          title={marker.title}
-          description={marker.description}
-          onCalloutPress={() =>
-            console.log(`Marker ${marker.id} callout pressed`)
-          }
-          onPress={() => console.log(`Clicked Marker: ${marker.id}`)}
-        >
-          <StyledView
-            className={`${
-              index === 0
-                ? "bg-lime-500"
-                : index === markers.length - 1
-                ? "bg-yellow-500"
-                : "bg-cyan-100"
-            } p-4 rounded-full border-2 border-black relative justify-center items-center`}
+    <>
+      <StyledMapView
+        // style={styles.map}
+        className="flex  w-full h-full"
+        initialRegion={{
+          latitude: 37.78825,
+          longitude: -122.4324,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+        onPress={(map) => {
+          handleMapPress(map);
+        }}
+      >
+        {markers.map((marker: MapMarker, index: number) => (
+          <StyledMarker
+            className="absolute"
+            draggable
+            key={marker.id}
+            coordinate={marker.coordinate}
+            title={marker.title}
+            description={marker.description}
+            onCalloutPress={() =>
+              console.log(`Marker ${marker.id} callout pressed`)
+            }
+            onPress={() => handleMarkerClick(marker)}
           >
-            <StyledText className="absolute">{marker.id}</StyledText>
+            <StyledView
+              className={`${
+                index === 0
+                  ? "bg-lime-500"
+                  : index === markers.length - 1
+                  ? "bg-yellow-500"
+                  : "bg-cyan-100"
+              } p-4 rounded-full border-2 border-black relative justify-center items-center`}
+            >
+              <StyledText className="absolute">{marker.id}</StyledText>
+            </StyledView>
+          </StyledMarker>
+        ))}
+        <StyledSafeAreaView className="p-4 flex flex-row absolute">
+          <StyledView className="flex flex-row items-center w-full justify-around z-50">
+            <StyledPressable
+              className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex relative items-center justify-center"
+              onPress={handleUndoPress}
+            >
+              <StyledText className="text-stone-50 font-semibold text-lg">
+                Undo
+              </StyledText>
+            </StyledPressable>
+
+            <StyledPressable
+              className="bg-lime-600/90 px-3 py-1 rounded-lg border-lime-900/90 border-2 shadow-2xl"
+              // onPress={handleSavePress}
+            >
+              <StyledText className="text-stone-50 font-semibold text-lg">
+                Save
+              </StyledText>
+            </StyledPressable>
           </StyledView>
-        </Marker>
-      ))}
-    </MapView>
+        </StyledSafeAreaView>
+      </StyledMapView>
+    </>
   );
 };
 
 export default MapScreen;
-
-const styles = StyleSheet.create({
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
-});
