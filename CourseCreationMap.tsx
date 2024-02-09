@@ -47,7 +47,7 @@ const CourseCreationMap = ({
     return distance > threshold;
   };
 
-  const handleMapPress = (event: MapPressEvent) => {
+  const handleCcMapPress = (event: MapPressEvent) => {
     if (!canAddMarkers || !event.nativeEvent.coordinate) return;
     const newCoordinate = event.nativeEvent.coordinate;
     const newMarker = {
@@ -164,7 +164,7 @@ const CourseCreationMap = ({
         longitudeDelta: 0.01,
       }}
       onPress={(map) => {
-        handleMapPress(map);
+        handleCcMapPress(map);
       }}
     >
       {markers.map((marker: MapMarker, index: number) => (

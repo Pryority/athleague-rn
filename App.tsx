@@ -123,7 +123,8 @@ function App() {
           </StyledSafeAreaView>
 
           {/*  --------------------- TUTORIAL --------------------- */}
-          {currentExploreTutStep <= exploreTutorialSteps.length - 1 ? (
+          {!showCourseCreation &&
+          currentExploreTutStep <= exploreTutorialSteps.length - 1 ? (
             <StyledView
               className="bg-stone-900/90 p-4 pb-16"
               style={{
@@ -136,10 +137,7 @@ function App() {
                 zIndex: 1,
               }}
             >
-              <StyledView
-                id="tutorial-hud"
-                className="bg-slate-900/90 z-50 flex absolute bottom-6 p-6 rounded-md"
-              >
+              <StyledView id="tutorial-hud">
                 <StyledText className="text-white">
                   {exploreTutorialSteps[currentExploreTutStep].text}
                 </StyledText>

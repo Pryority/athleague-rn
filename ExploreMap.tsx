@@ -74,7 +74,7 @@ const ExploreMap = () => {
     null
   );
 
-  const handleMapPress = (event: MapPressEvent) => {
+  const handleExploreMapPress = (event: MapPressEvent) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;
     console.log(`==> MAP PRESS - lat: ${latitude}, lng: ${longitude}`);
   };
@@ -100,7 +100,7 @@ const ExploreMap = () => {
         longitudeDelta: 0.05,
       }}
       onPress={(map) => {
-        handleMapPress(map);
+        handleExploreMapPress(map);
       }}
     >
       {courses.map((course: Course, index: number) => (
