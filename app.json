@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pryority.athleague"
@@ -27,6 +25,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["react-native-background-geolocation"],
+    "extra": {
+      "eas": {
+        "projectId": "20bee62a-0976-4c10-bfcc-97f7d97d051b"
+      }
     }
   }
 }
