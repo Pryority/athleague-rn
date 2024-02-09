@@ -27,6 +27,7 @@ function App() {
   const [showExplore, setShowExplore] = useState(false);
   const [savedCourse, setSavedCourse] = useState<Course | null>(null);
   const [focusCheckpoint, setFocusCheckpoint] = useState<boolean>(false);
+  const [currentCpIndex, setCurrentCpIndex] = useState<null | number>(null);
 
   const ccTutorialSteps = [
     {
@@ -131,6 +132,33 @@ function App() {
     setShowCourseCreation(false);
     console.log("Going back to main menu from Course Creation...");
   };
+
+  const handleDeletePress = () => {
+    if (!showCourseCreation || currentCpIndex === null) return;
+
+    // Create a copy of the markers array
+    const updatedMarkers = [...markers];
+
+    // Check if the currentCpIndex is a valid index
+    if (currentCpIndex >= 0 && currentCpIndex < markers.length) {
+      // Remove the marker at the currentCpIndex
+      updatedMarkers.splice(currentCpIndex, 1);
+
+      const updatedMarkersShifted = updatedMarkers.map((marker, index) => ({
+        ...marker,
+        id: index + 1,
+      }));
+
+      // Update the markers state
+      setMarkers(updatedMarkersShifted);
+
+      // Reset the currentCpIndex and focusCheckpoint
+      setCurrentCpIndex(null);
+      setFocusCheckpoint(false);
+
+      console.log(`Deleted marker at index: ${currentCpIndex}`);
+    }
+  };
   /* ----------------------------------------- */
 
   /* -- EXPLORATION BUTTONS ------------------ */
@@ -153,6 +181,9 @@ function App() {
 
   return (
     <>
+      {/* ------------------------------------ */}
+      {/* ------- EXPLORE -------------------- */}
+      {/* ------------------------------------ */}
       {showExplore ? (
         <StyledView className="bg-transparent flex w-full h-full items-center relative">
           <ExploreMap />
@@ -216,15 +247,19 @@ function App() {
         </StyledView>
       ) : (
         <>
+          {/* -------------------------------------------- */}
           {/* ------- COURSE CREATION -------------------- */}
+          {/* -------------------------------------------- */}
           {showCourseCreation ? (
             <StyledView className="bg-transparent flex w-full h-full items-center relative">
               <CourseCreationMap
                 markers={markers}
-                savedCourse={savedCourse!}
+                savedCourse={savedCourse}
                 setMarkers={setMarkers}
                 setCanAddMarkers={setCanAddMarkers}
                 setFocusCheckpoint={setFocusCheckpoint}
+                currentCpIndex={currentCpIndex}
+                setCurrentCpIndex={setCurrentCpIndex}
               />
 
               {/* {showTutorial && currentStep > 0 && (
@@ -265,7 +300,7 @@ function App() {
                   className={`${
                     markers.length > 1
                       ? "bg-lime-600/90 border-lime-900/90"
-                      : "bg-gray-600/90 border-gray-900/90 cursor-disabled"
+                      : "bg-lime-600/20 border-lime-900/20 cursor-disabled"
                   } px-3 py-1 rounded-lg  border-2 shadow-2xl`}
                   onPress={handleSavePress}
                 >
@@ -275,41 +310,33 @@ function App() {
                 </StyledPressable>
               </StyledView>
 
-              <StyledSafeAreaView
-                style={{
-                  position: "absolute",
-                  bottom: 44,
-                  left: 0,
-                  right: 0,
-                  paddingHorizontal: 16,
-                  paddingBottom: 16,
-                  zIndex: 1,
-                }}
+              <StyledView
+                className="flex flex-row justify-around items-center bottom-8 w-full bg-yellow-500/20 pointer-events-none px-3 z-50"
+                style={{ position: "absolute", pointerEvents: "auto" }}
               >
-                <StyledView className="flex flex-row items-end w-full justify-around pointer-events-none">
-                  <StyledPressable
-                    className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
-                    onPress={handleUndoPress}
-                  >
-                    <StyledText className="text-stone-50 font-semibold text-lg">
-                      Undo
-                    </StyledText>
-                  </StyledPressable>
+                <StyledPressable
+                  className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
+                  onPress={handleUndoPress}
+                  style={{ pointerEvents: "auto" }}
+                >
+                  <StyledText className="text-stone-50 font-semibold text-lg">
+                    Undo
+                  </StyledText>
+                </StyledPressable>
 
-                  <StyledPressable
-                    className={`${
-                      focusCheckpoint
-                        ? "bg-red-600/90 border-red-900/90"
-                        : "bg-red-600/20 border-red-900/20 cursor-disabled"
-                    } px-3 py-1 rounded-lg  border-2 shadow-2xl`}
-                    // onPress={handleDeletePress}
-                  >
-                    <StyledText className="text-stone-50 font-semibold text-lg">
-                      Delete
-                    </StyledText>
-                  </StyledPressable>
-                </StyledView>
-              </StyledSafeAreaView>
+                <StyledPressable
+                  className={`${
+                    focusCheckpoint
+                      ? "bg-red-600/90 border-red-900/90"
+                      : "bg-red-600/20 border-red-900/20 cursor-disabled"
+                  } px-3 py-1 rounded-lg  border-2 shadow-2xl`}
+                  onPress={handleDeletePress}
+                >
+                  <StyledText className="text-stone-50 font-semibold text-lg">
+                    Delete
+                  </StyledText>
+                </StyledPressable>
+              </StyledView>
             </StyledView>
           ) : (
             <StyledView className="flex relative w-full justify-center items-center h-full">
