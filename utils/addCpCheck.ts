@@ -21,3 +21,18 @@ export const calculateDistance = (
 export const deg2rad = (deg: number) => {
   return deg * (Math.PI / 180);
 };
+
+export const isMarkerWithinThreshold = (
+  newCoordinate: { latitude: number; longitude: number },
+  existingCoordinate: { latitude: number; longitude: number },
+  threshold: number
+) => {
+  const distance = calculateDistance(
+    newCoordinate.latitude,
+    newCoordinate.longitude,
+    existingCoordinate.latitude,
+    existingCoordinate.longitude
+  );
+
+  return distance > threshold;
+};

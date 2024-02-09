@@ -1,6 +1,6 @@
 import { LatLng } from "react-native-maps";
 
-export type MapMarker = {
+export type Checkpoint = {
   id: number;
   coordinate: { latitude: number; longitude: number };
   title: string;
@@ -12,7 +12,7 @@ export type Course = {
   mode: Mode;
   title: string;
   description: string;
-  checkpoints: MapMarker[];
+  checkpoints: Checkpoint[];
   // first checkpoint coordinate
   coordinate: LatLng;
 };
