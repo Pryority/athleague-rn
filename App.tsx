@@ -14,6 +14,7 @@ import {
 } from "./utils/nw";
 import { Course, MapMarker, Mode } from "./types";
 import ExploreMap from "./ExploreMap";
+import BackgroundGeolocation from "react-native-background-geolocation";
 
 function App() {
   const [markers, setMarkers] = useState<MapMarker[]>([]); // Specify the type
@@ -25,6 +26,7 @@ function App() {
   const [showCourseCreation, setShowCourseCreation] = useState(false);
   const [showExplore, setShowExplore] = useState(false);
   const [savedCourse, setSavedCourse] = useState<Course | null>(null);
+  const [focusCheckpoint, setFocusCheckpoint] = useState<boolean>(false);
 
   const ccTutorialSteps = [
     {
@@ -96,8 +98,29 @@ function App() {
       };
 
       setSavedCourse(course);
+      // saveGeofences();
     }
   };
+
+  // const saveGeofences = async () => {
+  //   await BackgroundGeolocation.addGeofences([
+  //     {
+  //       identifier: "Home",
+  //       radius: 200,
+  //       latitude: 45.51921926,
+  //       longitude: -73.61678581,
+  //       notifyOnEntry: true,
+  //     },
+  //     {
+  //       identifier: "Work",
+  //       radius: 200,
+  //       latitude: 45.61921927,
+  //       longitude: -73.71678582,
+  //       notifyOnEntry: true,
+  //     },
+  //   ]);
+  //   console.log("[addGeofences] success");
+  // };
 
   const handleCcBackPress = () => {
     if (!showCourseCreation) return;
@@ -194,8 +217,10 @@ function App() {
             <StyledView className="bg-transparent flex w-full h-full items-center relative">
               <CourseCreationMap
                 markers={markers}
+                savedCourse={savedCourse!}
                 setMarkers={setMarkers}
                 setCanAddMarkers={setCanAddMarkers}
+                setFocusCheckpoint={setFocusCheckpoint}
               />
 
               {/* {showTutorial && currentStep > 0 && (
@@ -219,31 +244,32 @@ function App() {
                 </StyledView>
               )} */}
 
-              <SafeAreaView
-                style={{
-                  position: "absolute",
-                  top: 44,
-                  left: 0,
-                  right: 0,
-                  paddingHorizontal: 16,
-                  paddingBottom: 16,
-                  zIndex: 1,
-                }}
+              <StyledView
+                className="flex flex-row justify-between items-center top-8 w-full bg-red-500/20 px-3 z-50"
+                style={{ position: "absolute" }}
               >
-                <StyledView
-                  id="cc-back-button"
-                  className="flex flex-row items-center w-full justify-start px-4"
+                <StyledPressable
+                  className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
+                  onPress={handleCcBackPress}
                 >
-                  <StyledPressable
-                    className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
-                    onPress={handleCcBackPress}
-                  >
-                    <StyledText className="text-stone-50 font-semibold text-lg">
-                      Back
-                    </StyledText>
-                  </StyledPressable>
-                </StyledView>
-              </SafeAreaView>
+                  <StyledText className="text-stone-50 font-semibold text-lg">
+                    Back
+                  </StyledText>
+                </StyledPressable>
+
+                <StyledPressable
+                  className={`${
+                    markers.length > 1
+                      ? "bg-lime-600/90 border-lime-900/90"
+                      : "bg-gray-600/90 border-gray-900/90 cursor-disabled"
+                  } px-3 py-1 rounded-lg  border-2 shadow-2xl`}
+                  onPress={handleSavePress}
+                >
+                  <StyledText className="text-stone-50 font-semibold text-lg">
+                    Save
+                  </StyledText>
+                </StyledPressable>
+              </StyledView>
 
               <StyledSafeAreaView
                 style={{
@@ -256,7 +282,7 @@ function App() {
                   zIndex: 1,
                 }}
               >
-                <StyledView className="flex flex-row items-end w-full justify-around">
+                <StyledView className="flex flex-row items-end w-full justify-around pointer-events-none">
                   <StyledPressable
                     className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
                     onPress={handleUndoPress}
@@ -268,14 +294,14 @@ function App() {
 
                   <StyledPressable
                     className={`${
-                      markers.length > 1
-                        ? "bg-lime-600/90 border-lime-900/90"
-                        : "bg-gray-600/90 border-gray-900/90 cursor-disabled"
+                      focusCheckpoint
+                        ? "bg-red-600/90 border-red-900/90"
+                        : "bg-red-600/20 border-red-900/20 cursor-disabled"
                     } px-3 py-1 rounded-lg  border-2 shadow-2xl`}
-                    onPress={handleSavePress}
+                    // onPress={handleDeletePress}
                   >
                     <StyledText className="text-stone-50 font-semibold text-lg">
-                      Save
+                      Delete
                     </StyledText>
                   </StyledPressable>
                 </StyledView>

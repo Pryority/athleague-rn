@@ -1,12 +1,12 @@
 import React, { Dispatch, useEffect, useRef, useState } from "react";
-import {
+import MapView, {
   MapOverlay,
   MapPressEvent,
   MarkerDragEvent,
   MarkerDragStartEndEvent,
 } from "react-native-maps";
 
-import { type MapMarker } from "./types";
+import { Course, type MapMarker } from "./types";
 import {
   StyledMapView,
   StyledMarker,
@@ -21,13 +21,18 @@ import { SafeAreaView } from "react-native";
 const CourseCreationMap = ({
   markers,
   setMarkers,
+  savedCourse,
+  setCanAddMarkers,
+  setFocusCheckpoint,
 }: {
   markers: MapMarker[];
   setMarkers: Dispatch<React.SetStateAction<MapMarker[]>>;
+  savedCourse: Course;
   setCanAddMarkers: Dispatch<React.SetStateAction<boolean>>;
+  setFocusCheckpoint: Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const mapRef = useRef<any>();
-  const [canAddMarkers, setCanAddMarkers] = useState(true);
+  const mapRef = useRef<MapView>();
+  const [canAddMarkers] = useState(true);
   const [currentCpIndex, setCurrentCpIndex] = useState<null | number>(null);
   const [deletedCheckpoints, setDeletedCheckpoints] = useState<string[]>([]);
   const dropAreaOverlay = useRef<MapOverlay>();
@@ -144,13 +149,31 @@ const CourseCreationMap = ({
 
   const handleMarkerClick = (marker: MapMarker) => {
     setCurrentCpIndex(marker.id - 1);
-    mapRef.current?.animateToRegion(marker.coordinate);
+    setFocusCheckpoint(true);
+    mapRef.current?.animateToRegion({
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+      latitude: marker.coordinate.latitude,
+      longitude: marker.coordinate.longitude,
+    });
     console.log(`Clicked Marker: ${marker.id}`);
   };
 
   useEffect(() => {
     console.log("currentCpIndex", currentCpIndex);
-  }, [currentCpIndex]);
+    if (savedCourse && savedCourse.checkpoints) {
+      mapRef?.current?.fitToElements({
+        edgePadding: {
+          top: 24,
+          right: 24,
+          bottom: 24,
+          left: 24,
+        },
+        animated: true,
+      });
+      // mapRef.current.getCenter();
+    }
+  }, [currentCpIndex, savedCourse]);
 
   return (
     <StyledMapView
