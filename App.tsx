@@ -82,22 +82,21 @@ function App() {
   const handleSavePress = () => {
     if (markers.length < 2) {
       console.log("Must add at least two checkpoints to create a course.");
+      return;
     } else if (markers.length >= 2) {
       console.log("Saving course...");
+
+      const course: Course = {
+        id: 0,
+        mode: Mode.Race,
+        title: "First Course",
+        description: "C'est difficile!",
+        checkpoints: markers,
+        coordinate: { latitude: 0, longitude: 0 },
+      };
+
+      setSavedCourse(course);
     }
-
-    console.log("Save pressed");
-
-    const course: Course = {
-      id: 0,
-      mode: Mode.Race,
-      title: "First Course",
-      description: "C'est difficile!",
-      checkpoints: markers,
-      coordinate: { latitude: 0, longitude: 0 },
-    };
-
-    setSavedCourse(course);
   };
 
   const handleCcBackPress = () => {
