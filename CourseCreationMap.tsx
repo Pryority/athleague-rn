@@ -1,9 +1,11 @@
 import React, { Dispatch, useEffect, useRef, useState } from "react";
 import MapView, {
+  BoundingBox,
   MapOverlay,
   MapPressEvent,
   MarkerDragEvent,
   MarkerDragStartEndEvent,
+  Region,
 } from "react-native-maps";
 
 import { Course, type MapMarker } from "./types";
@@ -24,18 +26,37 @@ const CourseCreationMap = ({
   savedCourse,
   setCanAddMarkers,
   setFocusCheckpoint,
+  currentCpIndex,
+  setCurrentCpIndex,
 }: {
   markers: MapMarker[];
   setMarkers: Dispatch<React.SetStateAction<MapMarker[]>>;
-  savedCourse: Course;
+  savedCourse: Course | null;
   setCanAddMarkers: Dispatch<React.SetStateAction<boolean>>;
   setFocusCheckpoint: Dispatch<React.SetStateAction<boolean>>;
+  currentCpIndex: number | null;
+  setCurrentCpIndex: Dispatch<React.SetStateAction<number | null>>;
 }) => {
   const mapRef = useRef<MapView>();
   const [canAddMarkers] = useState(true);
-  const [currentCpIndex, setCurrentCpIndex] = useState<null | number>(null);
   const [deletedCheckpoints, setDeletedCheckpoints] = useState<string[]>([]);
   const dropAreaOverlay = useRef<MapOverlay>();
+  // const [previousBoundary, setPreviousBoundary] = useState<BoundingBox>({
+  //   northEast: {
+  //     latitude: 0,
+  //     longitude: 0,
+  //   },
+  //   southWest: {
+  //     latitude: 0,
+  //     longitude: 0,
+  //   },
+  // });
+  // const [returnRegion, setReturnRegion] = useState<Region>({
+  //   latitudeDelta: 0.01,
+  //   longitudeDelta: 0.01,
+  //   latitude: 37.83,
+  //   longitude: -122.51777381728886,
+  // });
 
   const isMarkerWithinThreshold = (
     newCoordinate: { latitude: number; longitude: number },
@@ -164,10 +185,10 @@ const CourseCreationMap = ({
     if (savedCourse && savedCourse.checkpoints) {
       mapRef?.current?.fitToElements({
         edgePadding: {
-          top: 24,
-          right: 24,
-          bottom: 24,
-          left: 24,
+          top: 64,
+          right: 64,
+          bottom: 64,
+          left: 64,
         },
         animated: true,
       });
@@ -176,14 +197,13 @@ const CourseCreationMap = ({
 
   return (
     <StyledMapView
-      // style={styles.map}
       ref={mapRef}
       className="flex w-full h-full fixed pointer-events-none"
       initialRegion={{
-        latitude: 37.83,
-        longitude: -122.51777381728886,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
+        latitude: 37.83,
+        longitude: -122.51777381728886,
       }}
       onPress={(map) => {
         handleCcMapPress(map);
