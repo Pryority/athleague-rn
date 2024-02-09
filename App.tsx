@@ -12,7 +12,7 @@ import {
   StyledButton,
   StyledSafeAreaView,
 } from "./utils/nw";
-import { MapMarker } from "./types";
+import { Course, MapMarker } from "./types";
 import ExploreMap from "./ExploreMap";
 
 function App() {
@@ -24,6 +24,7 @@ function App() {
   const [canAddMarkers, setCanAddMarkers] = useState(true);
   const [showCourseCreation, setShowCourseCreation] = useState(false);
   const [showExplore, setShowExplore] = useState(false);
+  const [savedCourse, setSavedCourse] = useState<Course | undefined>();
 
   const ccTutorialSteps = [
     {
@@ -80,13 +81,19 @@ function App() {
     } else if (markers.length >= 2) {
       console.log("Saving course...");
     }
+
     console.log("Save pressed");
   };
 
-  const handleBackPress = () => {
+  const handleCcBackPress = () => {
+    if (!showCourseCreation) return;
     setShowCourseCreation(false);
+    console.log("Going back to main menu from Course Creation...");
+  };
+  const handleExploreBackPress = () => {
+    if (!showExplore) return;
     setShowExplore(false);
-    console.log("Going back to main menu...");
+    console.log("Going back to main menu from Exploration...");
   };
 
   const handleExploreTutNext = () => {
@@ -110,10 +117,13 @@ function App() {
               zIndex: 1,
             }}
           >
-            <StyledView className="flex flex-row items-center w-full justify-start px-4">
+            <StyledView
+              id="explore-back-button"
+              className="flex items-start w-full justify-center px-4"
+            >
               <StyledPressable
                 className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
-                onPress={handleBackPress}
+                onPress={handleExploreBackPress}
               >
                 <StyledText className="text-stone-50 font-semibold text-lg">
                   Back
@@ -122,7 +132,7 @@ function App() {
             </StyledView>
           </StyledSafeAreaView>
 
-          {/*  --------------------- TUTORIAL --------------------- */}
+          {/*  --- TUTORIAL --------------------- */}
           {!showCourseCreation &&
           currentExploreTutStep <= exploreTutorialSteps.length - 1 ? (
             <StyledView
@@ -132,8 +142,6 @@ function App() {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                // paddingHorizontal: 16,
-                // paddingBottom: 64,
                 zIndex: 1,
               }}
             >
@@ -186,7 +194,8 @@ function App() {
                   </StyledView>
                 </StyledView>
               )} */}
-              <StyledSafeAreaView
+
+              <SafeAreaView
                 style={{
                   position: "absolute",
                   top: 44,
@@ -197,17 +206,20 @@ function App() {
                   zIndex: 1,
                 }}
               >
-                <StyledView className="flex flex-row items-center w-full justify-start px-4">
+                <StyledView
+                  id="cc-back-button"
+                  className="flex flex-row items-center w-full justify-start px-4"
+                >
                   <StyledPressable
                     className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
-                    onPress={handleBackPress}
+                    onPress={handleCcBackPress}
                   >
                     <StyledText className="text-stone-50 font-semibold text-lg">
                       Back
                     </StyledText>
                   </StyledPressable>
                 </StyledView>
-              </StyledSafeAreaView>
+              </SafeAreaView>
 
               <StyledSafeAreaView
                 style={{
