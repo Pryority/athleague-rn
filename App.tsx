@@ -48,6 +48,8 @@ function App() {
     },
   ];
 
+  /* -- MAIN MENU BUTTONS -------------------- */
+
   const handleCreatePress = () => {
     setShowIntro(false);
     setShowCourseCreation(true);
@@ -57,7 +59,9 @@ function App() {
     setShowIntro(false);
     setShowExplore(true);
   };
+  /* ----------------------------------------- */
 
+  /* -- COURSE CREATION BUTTONS -------------- */
   const handleUndoPress = () => {
     setCanAddMarkers(false);
 
@@ -101,6 +105,9 @@ function App() {
     setShowCourseCreation(false);
     console.log("Going back to main menu from Course Creation...");
   };
+  /* ----------------------------------------- */
+
+  /* -- EXPLORATION BUTTONS ------------------ */
   const handleExploreBackPress = () => {
     if (!showExplore) return;
     setShowExplore(false);
@@ -110,9 +117,11 @@ function App() {
   const handleExploreTutNext = () => {
     setCurrentExploreTutStep(currentExploreTutStep + 1);
   };
+  /* ----------------------------------------- */
 
   useEffect(() => {
     // Log the savedCourse whenever it changes
+    if (savedCourse === null) return;
     console.log("Saved Course:", savedCourse);
   }, [savedCourse]);
 
