@@ -83,6 +83,12 @@ function App() {
     console.log("Save pressed");
   };
 
+  const handleBackPress = () => {
+    setShowCourseCreation(false);
+    setShowExplore(false);
+    console.log("Going back to main menu...");
+  };
+
   const handleExploreTutNext = () => {
     setCurrentExploreTutStep(currentExploreTutStep + 1);
   };
@@ -92,6 +98,31 @@ function App() {
       {showExplore ? (
         <StyledView className="bg-transparent flex w-full h-full items-center relative">
           <ExploreMap />
+
+          <StyledSafeAreaView
+            style={{
+              position: "absolute",
+              top: 44,
+              left: 0,
+              right: 0,
+              paddingHorizontal: 16,
+              paddingBottom: 16,
+              zIndex: 1,
+            }}
+          >
+            <StyledView className="flex flex-row items-center w-full justify-start px-4">
+              <StyledPressable
+                className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
+                onPress={handleBackPress}
+              >
+                <StyledText className="text-stone-50 font-semibold text-lg">
+                  Back
+                </StyledText>
+              </StyledPressable>
+            </StyledView>
+          </StyledSafeAreaView>
+
+          {/*  --------------------- TUTORIAL --------------------- */}
           {currentExploreTutStep <= exploreTutorialSteps.length - 1 ? (
             <StyledView
               className="bg-stone-900/90 p-4 pb-16"
@@ -128,6 +159,7 @@ function App() {
         </StyledView>
       ) : (
         <>
+          {/* ------- COURSE CREATION -------------------- */}
           {showCourseCreation ? (
             <StyledView className="bg-transparent flex w-full h-full items-center relative">
               <CourseCreationMap
@@ -156,6 +188,28 @@ function App() {
                   </StyledView>
                 </StyledView>
               )} */}
+              <StyledSafeAreaView
+                style={{
+                  position: "absolute",
+                  top: 44,
+                  left: 0,
+                  right: 0,
+                  paddingHorizontal: 16,
+                  paddingBottom: 16,
+                  zIndex: 1,
+                }}
+              >
+                <StyledView className="flex flex-row items-center w-full justify-start px-4">
+                  <StyledPressable
+                    className="bg-neutral-500/90 px-3 py-1 rounded-lg border-neutral-900/90 border-2 shadow-2xl flex items-center justify-center"
+                    onPress={handleBackPress}
+                  >
+                    <StyledText className="text-stone-50 font-semibold text-lg">
+                      Back
+                    </StyledText>
+                  </StyledPressable>
+                </StyledView>
+              </StyledSafeAreaView>
 
               <StyledSafeAreaView
                 style={{
