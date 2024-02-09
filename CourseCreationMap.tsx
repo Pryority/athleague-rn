@@ -171,7 +171,6 @@ const CourseCreationMap = ({
         },
         animated: true,
       });
-      // mapRef.current.getCenter();
     }
   }, [currentCpIndex, savedCourse]);
 

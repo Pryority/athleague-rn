@@ -98,6 +98,10 @@ function App() {
       };
 
       setSavedCourse(course);
+      const timer = setTimeout(() => {
+        setSavedCourse(null);
+        console.log("ADD MARKER TIMER DONE");
+      }, 500);
       // saveGeofences();
     }
   };
