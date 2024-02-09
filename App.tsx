@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MapView, { LatLng, Marker, Overlay } from "react-native-maps";
 import CourseCreationMap from "./CourseCreationMap";
 import { withExpoSnack } from "nativewind";
@@ -12,7 +12,7 @@ import {
   StyledButton,
   StyledSafeAreaView,
 } from "./utils/nw";
-import { Course, MapMarker } from "./types";
+import { Course, MapMarker, Mode } from "./types";
 import ExploreMap from "./ExploreMap";
 
 function App() {
@@ -24,7 +24,7 @@ function App() {
   const [canAddMarkers, setCanAddMarkers] = useState(true);
   const [showCourseCreation, setShowCourseCreation] = useState(false);
   const [showExplore, setShowExplore] = useState(false);
-  const [savedCourse, setSavedCourse] = useState<Course | undefined>();
+  const [savedCourse, setSavedCourse] = useState<Course | null>(null);
 
   const ccTutorialSteps = [
     {
@@ -83,6 +83,17 @@ function App() {
     }
 
     console.log("Save pressed");
+
+    const course: Course = {
+      id: 0,
+      mode: Mode.Race,
+      title: "First Course",
+      description: "C'est difficile!",
+      checkpoints: markers,
+      coordinate: { latitude: 0, longitude: 0 },
+    };
+
+    setSavedCourse(course);
   };
 
   const handleCcBackPress = () => {
@@ -99,6 +110,11 @@ function App() {
   const handleExploreTutNext = () => {
     setCurrentExploreTutStep(currentExploreTutStep + 1);
   };
+
+  useEffect(() => {
+    // Log the savedCourse whenever it changes
+    console.log("Saved Course:", savedCourse);
+  }, [savedCourse]);
 
   return (
     <>
