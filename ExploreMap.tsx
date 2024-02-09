@@ -92,7 +92,7 @@ const ExploreMap = () => {
   return (
     <StyledMapView
       ref={mapRef}
-      className="flex w-full h-full fixed pointer-events-none"
+      className="flex w-full h-full fixed"
       initialRegion={{
         latitude: courses[0].coordinate.latitude,
         longitude: courses[0].coordinate.longitude,
